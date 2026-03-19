@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pooja Store Admin + Shop</title>
+<style>
+body{font-family:Arial;margin:0;background:#0f172a;color:white}
+header{background:#020617;padding:15px;text-align:center}
+.container{padding:20px}
+input,button{padding:8px;margin:5px;border-radius:5px;border:none}
+button{background:#22c55e;color:white;cursor:pointer}
+.card{background:#1e293b;padding:10px;margin:10px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🕉️ ગાંધી માધવલાલ અમથારામ</h1>
+</header>
+
+<div class="container">
+
+<h2>🛠️ Admin Panel</h2>
+<input id="pname" placeholder="Product Name">
+<input id="pprice" placeholder="Price">
+<button onclick="addProduct()">Add Product</button>
+
+<div id="adminList"></div>
+
+<hr>
+
+<h2>🛒 Shop</h2>
+<div id="shop"></div>
+
+<h2>🧾 Bill</h2>
+<ul id="bill"></ul>
+<h3 id="total">Total: ₹0</h3>
+<button onclick="downloadBill()">Download Bill</button>
+
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem('products')) || [];
+let cart = [];
+
+function save(){
+ localStorage.setItem('products',JSON.stringify(products));
+ render();
+}
+
+function addProduct(){
+ let name=document.getElementById('pname').value;
+ let price=document.getElementById('pprice').value;
+ products.push({name,price});
+ save();
+}
+
+function deleteProduct(i){
+ products.splice(i,1);
+ save();
+}
+
+function render(){
+ let admin='';
+ let shop='';
+
+ products.forEach((p,i)=>{
+  admin+=`<div class='card'>${p.name} ₹${p.price} <button onclick='deleteProduct(${i})'>Delete</button></div>`;
+  shop+=`<div class='card'>${p.name} ₹${p.price} <button onclick='addCart(${i})'>Add</button></div>`;
+ });
+
+ document.getElementById('adminList').innerHTML=admin;
+ document.getElementById('shop').innerHTML=shop;
+}
+
+function addCart(i){
+ cart.push(products[i]);
+ updateBill();
+}
+
+function updateBill(){
+ let bill='';
+ let total=0;
+ cart.forEach(p=>{
+  bill+=`<li>${p.name} ₹${p.price}</li>`;
+  total+=Number(p.price);
+ });
+ document.getElementById('bill').innerHTML=bill;
+ document.getElementById('total').innerText='Total: ₹'+total;
+}
+
+function downloadBill(){
+ let text='Bill:\n';
+ cart.forEach(p=>{text+=p.name+' ₹'+p.price+'\n'});
+ let blob=new Blob([text]);
+ let a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='bill.txt';
+ a.click();
+}
+
+render();
+</script>
+
+</body>
+</html>
